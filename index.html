@@ -55,6 +55,7 @@
       max-width: 80%;
       word-wrap: break-word;
       transition: all 0.2s ease;
+      white-space: pre-wrap;
     }
 
     .user-msg {
@@ -104,7 +105,6 @@
       cursor: not-allowed;
     }
 
-    /* Loader with dynamic bouncing dots */
     .loader {
       display: flex;
       align-items: center;
@@ -149,7 +149,7 @@
       if (text instanceof HTMLElement) {
         div.appendChild(text);
       } else {
-        div.textContent = text;
+        div.innerHTML = text.replace(/\n/g, "<br>");
       }
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
