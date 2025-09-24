@@ -1,205 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DASH10 DEMO Chat</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Arial', sans-serif;
-      background: #f0f2f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DASH10 Voiceflow Style Chat</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
 
-    .chat-card {
-      width: 420px;
-      height: 600px;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-    }
+  .chat-card {
+    width: 400px;
+    height: 600px;
+    background: #fff;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    position: relative;
+  }
 
-    .chat-header {
-      background: #007bff;
-      color: #fff;
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
-      padding: 15px;
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-    }
+  .chat-header {
+    background: #4b6cf7;
+    color: #fff;
+    padding: 16px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
 
-    .chat-box {
-      flex: 1;
-      padding: 15px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: #f9f9f9;
-    }
+  .chat-header img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+  }
 
-    .message {
-      padding: 10px 15px;
-      border-radius: 20px;
-      max-width: 80%;
-      word-wrap: break-word;
-      transition: all 0.2s ease;
-    }
-    .user-msg {
-      background: #007bff;
-      color: #fff;
-      align-self: flex-end;
-    }
-    .bot-msg {
-      background: #e5e5ea;
-      color: #000;
-      align-self: flex-start;
-    }
+  .chat-box {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #fff;
+  }
 
-    .input-container {
-      display: flex;
-      border-top: 1px solid #ddd;
-    }
-    #userInput {
-      flex: 1;
-      padding: 10px 15px;
-      border: none;
-      font-size: 16px;
-    }
-    #userInput:focus {
-      outline: none;
-    }
-    #sendButton {
-      padding: 0 20px;
-      border: none;
-      background: #007bff;
-      color: #fff;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background 0.2s ease;
-    }
-    #sendButton:hover:not(:disabled) {
-      background: #0056b3;
-    }
-    #sendButton:disabled {
-      background: #aaa;
-      cursor: not-allowed;
-    }
+  .message {
+    display: flex;
+    align-items: flex-start;
+    max-width: 80%;
+  }
 
-    /* Loader animation */
-    .loader::after {
-      content: '';
-      display: inline-block;
-      width: 5px;
-      height: 5px;
-      margin-left: 2px;
-      margin-right: 2px;
-      background: #999;
-      border-radius: 50%;
-      animation: blink 1s infinite;
-    }
+  .bot-msg {
+    background: #f1f1f1;
+    color: #000;
+    border-radius: 16px;
+    padding: 10px 14px;
+    align-self: flex-start;
+    display: flex;
+    gap: 8px;
+  }
 
-    @keyframes blink {
-      0%, 80%, 100% { opacity: 0; }
-      40% { opacity: 1; }
-    }
-  </style>
+  .bot-msg img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+  }
+
+  .user-msg {
+    background: #4b6cf7;
+    color: #fff;
+    border-radius: 16px;
+    padding: 10px 14px;
+    align-self: flex-end;
+  }
+
+  .input-container {
+    display: flex;
+    padding: 10px 12px;
+    border-top: 1px solid #eee;
+    gap: 8px;
+  }
+
+  #userInput {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 24px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+  }
+
+  #sendButton {
+    background: #4b6cf7;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+</style>
 </head>
 <body>
 
-  <div class="chat-card">
-    <div class="chat-header">DASH10 DEMO</div>
-    <div class="chat-box" id="chatBox"></div>
-    <div class="input-container">
-      <input type="text" id="userInput" placeholder="Type your question..." />
-      <button id="sendButton">Send</button>
-    </div>
+<div class="chat-card">
+  <div class="chat-header">
+    <img src="https://i.imgur.com/3yQjL0X.png" alt="AI Avatar">
+    Your AI agent
   </div>
+  <div class="chat-box" id="chatBox"></div>
+  <div class="input-container">
+    <input type="text" id="userInput" placeholder="Message...">
+    <button id="sendButton">&#8593;</button>
+  </div>
+</div>
 
-  <script>
-    const chatBox = document.getElementById("chatBox");
-    const userInput = document.getElementById("userInput");
-    const sendButton = document.getElementById("sendButton");
+<script>
+const chatBox = document.getElementById("chatBox");
+const userInput = document.getElementById("userInput");
+const sendButton = document.getElementById("sendButton");
+const WEBHOOK_URL = "https://n8n.metroaisolutions.com/webhook/26c6631f-cd2e-4412-a2e3-3ffd4ec08426";
 
-    const WEBHOOK_URL = "https://n8n.metroaisolutions.com/webhook/26c6631f-cd2e-4412-a2e3-3ffd4ec08426";
+function appendMessage(text, sender) {
+  const msg = document.createElement("div");
+  msg.classList.add(sender === "user" ? "user-msg" : "bot-msg");
 
-    function appendMessage(text, sender) {
-      const div = document.createElement("div");
-      div.classList.add("message", sender === "user" ? "user-msg" : "bot-msg");
-      div.textContent = text;
-      chatBox.appendChild(div);
+  if(sender === "bot") {
+    const avatar = document.createElement("img");
+    avatar.src = "https://i.imgur.com/3yQjL0X.png";
+    msg.appendChild(avatar);
+  }
+
+  const span = document.createElement("span");
+  span.textContent = text;
+  msg.appendChild(span);
+
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+  return msg;
+}
+
+// Typewriter effect for bot
+async function typeSentence(sentence) {
+  return new Promise(resolve => {
+    const msgDiv = appendMessage("", "bot").querySelector("span");
+    let i = 0;
+    const interval = setInterval(() => {
+      msgDiv.textContent += sentence[i];
+      i++;
       chatBox.scrollTop = chatBox.scrollHeight;
-      return div;
-    }
-
-    // Loader for AI typing
-    function createLoader() {
-      const div = document.createElement("div");
-      div.classList.add("message", "bot-msg", "loader");
-      div.textContent = "...";
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
-      return div;
-    }
-
-    async function sendMessage() {
-      const question = userInput.value.trim();
-      if (!question) return;
-
-      appendMessage(question, "user");
-      userInput.value = "";
-      sendButton.disabled = true;
-
-      const loadingMsg = createLoader();
-
-      try {
-        const res = await fetch(WEBHOOK_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question })
-        });
-        const data = await res.json();
-        loadingMsg.remove(); // remove loader
-
-        // Split AI response into sentences
-        const sentences = data.reply.split(/(?<=\.)\s/).filter(Boolean);
-
-        // Display each sentence with a small delay
-        sentences.forEach((sentence, index) => {
-          setTimeout(() => {
-            appendMessage(sentence, "bot");
-          }, index * 600); // adjust 600ms for speed
-        });
-
-      } catch (err) {
-        loadingMsg.textContent = "Error connecting to bot.";
-        loadingMsg.classList.remove("loader");
-        console.error(err);
-      } finally {
-        sendButton.disabled = false;
-        userInput.focus();
+      if(i >= sentence.length) {
+        clearInterval(interval);
+        resolve();
       }
-    }
+    }, 25);
+  });
+}
 
-    sendButton.addEventListener("click", sendMessage);
-    userInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        sendMessage();
-      }
+async function sendMessage() {
+  const question = userInput.value.trim();
+  if(!question) return;
+  appendMessage(question, "user");
+  userInput.value = "";
+  sendButton.disabled = true;
+
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question })
     });
-  </script>
+    const data = await res.json();
+    const sentences = data.reply.split(/(?<=\.)\s/).filter(Boolean);
+    for(const sentence of sentences) {
+      await typeSentence(sentence);
+      await new Promise(r => setTimeout(r, 300));
+    }
+  } catch(err) {
+    appendMessage("Error connecting to bot.", "bot");
+    console.error(err);
+  } finally {
+    sendButton.disabled = false;
+    userInput.focus();
+  }
+}
+
+sendButton.addEventListener("click", sendMessage);
+userInput.addEventListener("keydown", e => {
+  if(e.key === "Enter") {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+</script>
 
 </body>
 </html>
