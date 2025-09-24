@@ -150,13 +150,12 @@
       if (text instanceof HTMLElement) {
         div.appendChild(text);
       } else {
-        // Split into paragraphs and preserve bullets
         div.innerHTML = text
-          .split(/\n{2,}/)
+          .split(/\n{2,}/)               // split on 2+ newlines
           .map(p => p.trim())
           .filter(Boolean)
-          .map(p => p.startsWith("- ") ? `<div>${p}</div>` : `<p>${p}</p>`)
-          .join("");
+          .map(p => p.startsWith("- ") ? p : `<p>${p}</p>`) // bullets inline, paragraphs spaced
+          .join("<br>");                 // single line break between paragraphs
       }
 
       chatBox.appendChild(div);
