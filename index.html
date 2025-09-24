@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DASH10 DEMO Chat</title>
   <style>
-    /* Reset body */
     body {
       margin: 0;
       padding: 0;
@@ -17,7 +16,6 @@
       height: 100vh;
     }
 
-    /* Static curved card in the center */
     .chat-card {
       width: 420px;
       height: 600px;
@@ -30,7 +28,6 @@
       position: relative;
     }
 
-    /* Header */
     .chat-header {
       background: #007bff;
       color: #fff;
@@ -42,7 +39,6 @@
       border-top-right-radius: 20px;
     }
 
-    /* Chat box area */
     .chat-box {
       flex: 1;
       padding: 15px;
@@ -53,7 +49,6 @@
       background: #f9f9f9;
     }
 
-    /* Messages */
     .message {
       padding: 10px 15px;
       border-radius: 20px;
@@ -72,7 +67,6 @@
       align-self: flex-start;
     }
 
-    /* Input area */
     .input-container {
       display: flex;
       border-top: 1px solid #ddd;
@@ -102,6 +96,26 @@
       background: #aaa;
       cursor: not-allowed;
     }
+
+    /* Loader animation */
+    .loader::after {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      margin-left: 2px;
+      margin-right: 2px;
+      background: #999;
+      border-radius: 50%;
+      animation: blink 1s infinite;
+    }
+    .loader::after:nth-child(2) { animation-delay: 0.2s; }
+    .loader::after:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0; }
+      40% { opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -120,7 +134,6 @@
     const userInput = document.getElementById("userInput");
     const sendButton = document.getElementById("sendButton");
 
-    // Replace with your n8n webhook URL
     const WEBHOOK_URL = "https://n8n.metroaisolutions.com/webhook/26c6631f-cd2e-4412-a2e3-3ffd4ec08426";
 
     function appendMessage(text, sender) {
@@ -129,6 +142,16 @@
       div.textContent = text;
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
+      return div;
+    }
+
+    function createLoader() {
+      const div = document.createElement("div");
+      div.classList.add("message", "bot-msg", "loader");
+      div.textContent = "...";
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return div;
     }
 
     async function sendMessage() {
@@ -139,8 +162,7 @@
       userInput.value = "";
       sendButton.disabled = true;
 
-      appendMessage("...", "bot");
-      const loadingMsg = chatBox.lastChild;
+      const loadingMsg = createLoader();
 
       try {
         const res = await fetch(WEBHOOK_URL, {
@@ -149,9 +171,11 @@
           body: JSON.stringify({ question })
         });
         const data = await res.json();
-        loadingMsg.textContent = data.answer || "No response from bot.";
+        loadingMsg.textContent = data.reply || "No response from bot.";
+        loadingMsg.classList.remove("loader");
       } catch (err) {
         loadingMsg.textContent = "Error connecting to bot.";
+        loadingMsg.classList.remove("loader");
         console.error(err);
       } finally {
         sendButton.disabled = false;
