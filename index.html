@@ -50,12 +50,12 @@
     }
 
     .message {
-      padding: 10px 15px;
       border-radius: 20px;
       max-width: 80%;
       word-wrap: break-word;
       transition: all 0.2s ease;
       white-space: pre-wrap;
+      padding: 0; /* removed padding */
     }
 
     .user-msg {
@@ -68,6 +68,11 @@
       background: #e5e5ea;
       color: #000;
       align-self: flex-start;
+      padding: 0; /* removed padding */
+    }
+
+    .message p {
+      margin: 0; /* remove paragraph margin */
     }
 
     .input-container {
@@ -151,11 +156,11 @@
         div.appendChild(text);
       } else {
         div.innerHTML = text
-          .split(/\n{2,}/)               // split on 2+ newlines
+          .split(/\n{2,}/)
           .map(p => p.trim())
           .filter(Boolean)
-          .map(p => p.startsWith("- ") ? p : `<p>${p}</p>`) // bullets inline, paragraphs spaced
-          .join("<br>");                 // single line break between paragraphs
+          .map(p => p.startsWith("- ") ? p : `<p>${p}</p>`)
+          .join("<br>");
       }
 
       chatBox.appendChild(div);
