@@ -3,27 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RAG Chatbot Demo</title>
+  <title>DASH10 DEMO Chat</title>
   <style>
+    /* Reset body */
     body {
-      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background: #f0f2f5;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background: #f5f5f5;
-      margin: 0;
     }
-    .chat-container {
-      width: 400px;
-      max-height: 600px;
+
+    /* Static curved card in the center */
+    .chat-card {
+      width: 420px;
+      height: 600px;
       background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      position: relative;
     }
+
+    /* Header */
+    .chat-header {
+      background: #007bff;
+      color: #fff;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 15px;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+    }
+
+    /* Chat box area */
     .chat-box {
       flex: 1;
       padding: 15px;
@@ -31,12 +50,16 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      background: #f9f9f9;
     }
+
+    /* Messages */
     .message {
       padding: 10px 15px;
       border-radius: 20px;
       max-width: 80%;
       word-wrap: break-word;
+      transition: all 0.2s ease;
     }
     .user-msg {
       background: #007bff;
@@ -48,6 +71,8 @@
       color: #000;
       align-self: flex-start;
     }
+
+    /* Input area */
     .input-container {
       display: flex;
       border-top: 1px solid #ddd;
@@ -56,7 +81,6 @@
       flex: 1;
       padding: 10px 15px;
       border: none;
-      border-radius: 0;
       font-size: 16px;
     }
     #userInput:focus {
@@ -69,6 +93,10 @@
       color: #fff;
       cursor: pointer;
       font-size: 16px;
+      transition: background 0.2s ease;
+    }
+    #sendButton:hover:not(:disabled) {
+      background: #0056b3;
     }
     #sendButton:disabled {
       background: #aaa;
@@ -77,7 +105,9 @@
   </style>
 </head>
 <body>
-  <div class="chat-container">
+
+  <div class="chat-card">
+    <div class="chat-header">DASH10 DEMO</div>
     <div class="chat-box" id="chatBox"></div>
     <div class="input-container">
       <input type="text" id="userInput" placeholder="Type your question..." />
@@ -91,9 +121,8 @@
     const sendButton = document.getElementById("sendButton");
 
     // Replace with your n8n webhook URL
-    const WEBHOOK_URL = "https://n8n.metroaisolutions.com/webhook-test/26c6631f-cd2e-4412-a2e3-3ffd4ec08426";
+    const WEBHOOK_URL = "https://n8n.metroaisolutions.com/webhook/26c6631f-cd2e-4412-a2e3-3ffd4ec08426";
 
-    // Append message to chat
     function appendMessage(text, sender) {
       const div = document.createElement("div");
       div.classList.add("message", sender === "user" ? "user-msg" : "bot-msg");
@@ -102,7 +131,6 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Send message to n8n webhook
     async function sendMessage() {
       const question = userInput.value.trim();
       if (!question) return;
@@ -111,15 +139,13 @@
       userInput.value = "";
       sendButton.disabled = true;
 
-      appendMessage("...", "bot"); // loading placeholder
+      appendMessage("...", "bot");
       const loadingMsg = chatBox.lastChild;
 
       try {
         const res = await fetch(WEBHOOK_URL, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ question })
         });
         const data = await res.json();
@@ -133,10 +159,7 @@
       }
     }
 
-    // Send message on button click
     sendButton.addEventListener("click", sendMessage);
-
-    // Send message on Enter key
     userInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -144,5 +167,6 @@
       }
     });
   </script>
+
 </body>
 </html>
