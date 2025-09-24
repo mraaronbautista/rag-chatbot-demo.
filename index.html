@@ -196,8 +196,6 @@
         if (steps.length === 1) {
           steps = data.reply.split(/(?=\d+\.)/).filter(Boolean);
         }
-        // Limit to max 3 steps
-        steps = steps.slice(0, 3);
 
         for (const step of steps) {
           const loader = createLoader();
