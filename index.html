@@ -109,8 +109,6 @@
       border-radius: 50%;
       animation: blink 1s infinite;
     }
-    .loader::after:nth-child(2) { animation-delay: 0.2s; }
-    .loader::after:nth-child(3) { animation-delay: 0.4s; }
 
     @keyframes blink {
       0%, 80%, 100% { opacity: 0; }
@@ -145,6 +143,7 @@
       return div;
     }
 
+    // Loader for AI typing
     function createLoader() {
       const div = document.createElement("div");
       div.classList.add("message", "bot-msg", "loader");
@@ -171,8 +170,18 @@
           body: JSON.stringify({ question })
         });
         const data = await res.json();
-        loadingMsg.textContent = data.reply || "No response from bot.";
-        loadingMsg.classList.remove("loader");
+        loadingMsg.remove(); // remove loader
+
+        // Split AI response into sentences
+        const sentences = data.reply.split(/(?<=\.)\s/).filter(Boolean);
+
+        // Display each sentence with a small delay
+        sentences.forEach((sentence, index) => {
+          setTimeout(() => {
+            appendMessage(sentence, "bot");
+          }, index * 600); // adjust 600ms for speed
+        });
+
       } catch (err) {
         loadingMsg.textContent = "Error connecting to bot.";
         loadingMsg.classList.remove("loader");
