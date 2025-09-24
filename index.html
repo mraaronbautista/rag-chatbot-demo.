@@ -104,11 +104,11 @@
       cursor: not-allowed;
     }
 
-    /* Loader with 3 bouncing dots */
+    /* Loader with dynamic bouncing dots */
     .loader {
       display: flex;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
     }
 
     .loader span {
@@ -119,10 +119,6 @@
       display: inline-block;
       animation: bounce 1.4s infinite ease-in-out both;
     }
-
-    .loader span:nth-child(1) { animation-delay: 0s; }
-    .loader span:nth-child(2) { animation-delay: 0.2s; }
-    .loader span:nth-child(3) { animation-delay: 0.4s; }
 
     @keyframes bounce {
       0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
@@ -160,18 +156,23 @@
       return div;
     }
 
-    function createLoader() {
+    function createLoader(dotCount = 3) {
       const loaderDiv = document.createElement("div");
       loaderDiv.classList.add("message", "bot-msg");
+
       const loader = document.createElement("div");
       loader.classList.add("loader");
-      for (let i = 0; i < 3; i++) {
+
+      for (let i = 0; i < dotCount; i++) {
         const dot = document.createElement("span");
+        dot.style.animationDelay = `${i * 0.2}s`;
         loader.appendChild(dot);
       }
+
       loaderDiv.appendChild(loader);
       chatBox.appendChild(loaderDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
+
       return loaderDiv;
     }
 
@@ -191,14 +192,11 @@
         });
         const data = await res.json();
 
-        // Split reply into steps by double line breaks or numbered steps
         let steps = data.reply.split(/\n\n/).filter(Boolean);
-        if (steps.length === 1) {
-          steps = data.reply.split(/(?=\d+\.)/).filter(Boolean);
-        }
+        if (steps.length === 1) steps = data.reply.split(/(?=\d+\.)/).filter(Boolean);
 
         for (const step of steps) {
-          const loader = createLoader();
+          const loader = createLoader(Math.min(Math.ceil(step.length / 20), 5));
           await new Promise(resolve => setTimeout(resolve, Math.max(300, step.length * 30)));
           loader.remove();
           appendMessage(step, "bot");
