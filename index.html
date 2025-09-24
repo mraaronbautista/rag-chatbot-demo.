@@ -56,11 +56,13 @@
       word-wrap: break-word;
       transition: all 0.2s ease;
     }
+
     .user-msg {
       background: #007bff;
       color: #fff;
       align-self: flex-end;
     }
+
     .bot-msg {
       background: #e5e5ea;
       color: #000;
@@ -71,15 +73,18 @@
       display: flex;
       border-top: 1px solid #ddd;
     }
+
     #userInput {
       flex: 1;
       padding: 10px 15px;
       border: none;
       font-size: 16px;
     }
+
     #userInput:focus {
       outline: none;
     }
+
     #sendButton {
       padding: 0 20px;
       border: none;
@@ -89,31 +94,41 @@
       font-size: 16px;
       transition: background 0.2s ease;
     }
+
     #sendButton:hover:not(:disabled) {
       background: #0056b3;
     }
+
     #sendButton:disabled {
       background: #aaa;
       cursor: not-allowed;
     }
 
-    /* Loader animation */
-    .loader::after {
-      content: '';
-      display: inline-block;
-      width: 5px;
-      height: 5px;
-      margin-left: 2px;
-      margin-right: 2px;
-      background: #999;
-      border-radius: 50%;
-      animation: blink 1s infinite;
+    /* Loader with 3 bouncing dots */
+    .loader {
+      display: flex;
+      align-items: center;
+      gap: 3px;
     }
 
-    @keyframes blink {
-      0%, 80%, 100% { opacity: 0; }
-      40% { opacity: 1; }
+    .loader span {
+      width: 6px;
+      height: 6px;
+      background: #999;
+      border-radius: 50%;
+      display: inline-block;
+      animation: bounce 1.4s infinite ease-in-out both;
     }
+
+    .loader span:nth-child(1) { animation-delay: 0s; }
+    .loader span:nth-child(2) { animation-delay: 0.2s; }
+    .loader span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
   </style>
 </head>
 <body>
@@ -137,20 +152,29 @@
     function appendMessage(text, sender) {
       const div = document.createElement("div");
       div.classList.add("message", sender === "user" ? "user-msg" : "bot-msg");
-      div.textContent = text;
+      if (text instanceof HTMLElement) {
+        div.appendChild(text);
+      } else {
+        div.textContent = text;
+      }
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
       return div;
     }
 
-    // Loader for AI typing
     function createLoader() {
-      const div = document.createElement("div");
-      div.classList.add("message", "bot-msg", "loader");
-      div.textContent = "...";
-      chatBox.appendChild(div);
+      const loaderDiv = document.createElement("div");
+      loaderDiv.classList.add("message", "bot-msg");
+      const loader = document.createElement("div");
+      loader.classList.add("loader");
+      for (let i = 0; i < 3; i++) {
+        const dot = document.createElement("span");
+        loader.appendChild(dot);
+      }
+      loaderDiv.appendChild(loader);
+      chatBox.appendChild(loaderDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
-      return div;
+      return loaderDiv;
     }
 
     async function sendMessage() {
@@ -161,8 +185,6 @@
       userInput.value = "";
       sendButton.disabled = true;
 
-      const loadingMsg = createLoader();
-
       try {
         const res = await fetch(WEBHOOK_URL, {
           method: "POST",
@@ -170,36 +192,18 @@
           body: JSON.stringify({ question })
         });
         const data = await res.json();
-        loadingMsg.remove(); // remove loader
 
         const sentences = data.reply.split(/(?<=\.)\s/).filter(Boolean);
 
-        // Typewriter effect for each sentence
-        async function typeSentence(sentence, delay = 30) {
-          return new Promise((resolve) => {
-            const msgDiv = appendMessage("", "bot");
-            let i = 0;
-            const interval = setInterval(() => {
-              msgDiv.textContent += sentence[i];
-              i++;
-              chatBox.scrollTop = chatBox.scrollHeight;
-              if (i >= sentence.length) {
-                clearInterval(interval);
-                resolve();
-              }
-            }, delay);
-          });
-        }
-
-        // Sequentially type each sentence
         for (const sentence of sentences) {
-          await typeSentence(sentence);
-          await new Promise(r => setTimeout(r, 300)); // small pause between sentences
+          const loader = createLoader();
+          await new Promise(resolve => setTimeout(resolve, Math.max(800, sentence.length * 50)));
+          loader.remove();
+          appendMessage(sentence, "bot");
         }
 
       } catch (err) {
-        loadingMsg.textContent = "Error connecting to bot.";
-        loadingMsg.classList.remove("loader");
+        appendMessage("Error connecting to bot.", "bot");
         console.error(err);
       } finally {
         sendButton.disabled = false;
